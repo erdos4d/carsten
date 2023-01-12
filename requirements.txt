@@ -1,0 +1,3 @@
+git+https://github.com/sympy/sympy.git@master
+scipy
+wheel

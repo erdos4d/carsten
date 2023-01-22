@@ -1,0 +1,35 @@
+- name: "Carsten Node Ansible Playbook"
+  hosts: default
+  become: yes
+  tasks:
+    - name: Upgrade apt dependencies
+      apt:
+        update_cache: yes
+        upgrade: safe
+
+    - name: Install apt dependencies
+      apt:
+        name:
+          - ca-certificates
+          - lrzsz
+          - git
+          - vim
+          - htop
+          - jq
+          - unzip
+          - curl
+          - python3
+          - python3-venv
+          - python3-pip
+        state: present
+        force: yes
+        update_cache: yes
+
+    - name: Clone carsten repo
+      git:
+        repo: https://github.com/erdos4d/carsten.git
+        dest: /carsten
+
+    - name: Install pip dependencies
+      pip:
+        requirements: /carsten/requirements.txt

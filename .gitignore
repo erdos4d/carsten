@@ -130,3 +130,7 @@ dmypy.json
 
 .idea
 *.iml
+
+data
+.terraform
+.terraform.lock.hcl

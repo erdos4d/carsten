@@ -1,0 +1,11 @@
+[Unit]
+Description=Job to initialize node on boot
+
+[Service]
+Type=simple
+Environment=HOME=/root
+ExecStart=/bin/bash /server/init.sh
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

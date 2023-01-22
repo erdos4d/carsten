@@ -16,4 +16,7 @@ with Pool(processes=cpus) as pool:
     while True:
         if len(running_tasks) < cpus:
             n = data.get_n()
+            if n is None:
+                print('error getting n')
+
             running_tasks.update({n: pool.apply_async(notebook.run, args=(n,), callback=write_output)})

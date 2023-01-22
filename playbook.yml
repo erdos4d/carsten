@@ -12,6 +12,7 @@
         name:
           - ca-certificates
           - lrzsz
+          - rsync
           - git
           - vim
           - htop
@@ -33,3 +34,30 @@
     - name: Install pip dependencies
       pip:
         requirements: /carsten/requirements.txt
+
+    - name: Copy server folder
+      synchronize:
+        src: ./server
+        dest: /
+        recursive: yes
+        rsync_opts:
+          - "--chmod=F777"
+          - "--chmod=D777"
+
+    - name: Move systemd service file
+      copy:
+        src: /server/init.service
+        dest: /etc/systemd/system/init.service
+        remote_src: yes
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Ensure init service is enabled and not masked
+      systemd:
+        state: stopped
+        name: init
+        enabled: yes
+        masked: no
+        daemon_reload: yes
+

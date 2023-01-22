@@ -144,12 +144,12 @@ resource "aws_instance" "carsten_node" {
   }
   user_data = <<EOF
 #!/bin/bash
-touch /.env
-echo "DB_HOST=${aws_db_instance.carsten_database.address}" >> /.env
-echo "DB_PORT=${aws_db_instance.carsten_database.port}" >> /.env
-echo "DB_NAME=carsten" >> /.env
-echo "DB_USER=postgres" >> /.env
-echo "DB_PASS=quwefhq83fmhxi8mh3zim2hrfix3yymrfmqymrfdmkqzuhecifxqhyfmixqhyfi8" >> /.env
+touch /carsten/.env
+echo "DB_HOST=${aws_db_instance.carsten_database.address}" >> /carsten/.env
+echo "DB_PORT=${aws_db_instance.carsten_database.port}" >> /carsten/.env
+echo "DB_NAME=carsten" >> /carsten/.env
+echo "DB_USER=postgres" >> /carsten/.env
+echo "DB_PASS=quwefhq83fmhxi8mh3zim2hrfix3yymrfmqymrfdmkqzuhecifxqhyfmixqhyfi8" >> /carsten/.env
 EOF
 }
 

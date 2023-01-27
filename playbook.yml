@@ -19,34 +19,66 @@
           - jq
           - unzip
           - curl
-          - python3
+          - python3-dev
           - python3-venv
           - python3-pip
+          - libgmp-dev
+          - libmpfr-dev
+          - build-essential
+          - m4
+          - libc6-dev
         state: present
         force: yes
         update_cache: yes
+
+    - name: Download flint
+      unarchive:
+        src: https://www.flintlib.org/flint-2.9.0.tar.gz
+        remote_src: yes
+        dest: /
+
+    - name: Install flint
+      shell: |
+        cd /flint-2.9.0
+        ./configure
+        make
+        make install
+        cd /
+        rm -rf /flint-2.9.0
+
+    - name: Download arb
+      git:
+        repo: https://github.com/fredrik-johansson/arb.git
+        dest: /
+
+    - name: Install arb
+      shell: |
+        cd /arb
+        ./configure
+        make
+        make install
+        cd /
+        rm -rf /arb
 
     - name: Clone carsten repo
       git:
         repo: https://github.com/erdos4d/carsten.git
         dest: /carsten
 
+    - name: Install pip build dependencies
+      pip:
+        name:
+          - Cython
+          - numpy
+          - wheel
+
     - name: Install pip dependencies
       pip:
         requirements: /carsten/requirements.txt
 
-    - name: Copy server folder
-      synchronize:
-        src: ./server
-        dest: /
-        recursive: yes
-        rsync_opts:
-          - "--chmod=F777"
-          - "--chmod=D777"
-
     - name: Move systemd service file
       copy:
-        src: /server/init.service
+        src: /carsten/server/init.service
         dest: /etc/systemd/system/init.service
         remote_src: yes
         owner: root

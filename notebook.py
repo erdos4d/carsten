@@ -1,9 +1,9 @@
+import math
 from datetime import datetime as dt
-
+import decimal
 import numpy as np
+from flint import fmpz_mat
 from sympy import *
-
-from lll_maple import LLL
 
 
 def run(n: int):
@@ -82,24 +82,25 @@ def run(n: int):
     output.update({'L': str(L)})
 
     F = [
-        [1 if i == j else 0 if i < N + 1 else L[j] for i in range(N + 2)] for j in range(N + 1)
+        [1 if i == j else 0 if i < N + 1 else int(L[j]) for i in range(N + 2)] for j in range(N + 1)
     ]
     output.update({'F': str(F)})
 
     time = dt.now().timestamp()
-    lll = LLL(Matrix(F), delta=Rational(3, 4))
-    G = lll.basis
-    G_list = [[int(G[u, j]) for j in range(G.shape[1])] for u in range(G.shape[0])]
+    fM = fmpz_mat(F)
+    lll = fM.lll().tolist()
+    G_list = [[int(lll[i][j]) for j in range(N + 2)] for i in range(N + 1)]
+    G = Matrix(G_list)
     output.update({'G': str(G_list)})
     output.update({'lll_seconds': int(dt.now().timestamp() - time)})
 
-    Z = L
+    Z = L.copy()
     Z.append(-1)
 
     basis_check = all([np.sum([G[u, j] * Z[j] for j in range(G.shape[1])]) == 0 for u in range(G.shape[0])])
     output.update({'basis_check': basis_check})
 
-    rank_check = np.linalg.matrix_rank(G_list) == N + 1
+    rank_check = fM.rank() == N + 1
     output.update({'rank_check': bool(rank_check)})
 
     S = [max([abs(G[j, i]) for i in range(G.shape[1])]) for j in range(G.shape[0])]
@@ -112,18 +113,18 @@ def run(n: int):
     psi = 1 / max(T)
     output.update({'psi': str(psi)})
 
-    H = L
+    H = [int(l) for l in L]
     H.append(-1)
 
     D = [
-        prod([
+        math.prod([
             max(abs(max(G[j, :])), abs(min(G[j, :]))) for j in range(G.shape[0])
         ]),
-        floor(sqrt(abs(sum(pow(h, 2) for h in H))))
+        math.floor(decimal.Decimal(sum([pow(h, 2) for h in H])).sqrt())
     ]
     output.update({'D': str(D)})
 
-    t1 = (log(D[0]) / log(D[1])).evalf()
+    t1 = math.log(int(D[0])) / math.log(int(D[1]))
 
     output.update({'t1': str(t1)})
 
@@ -136,3 +137,21 @@ def run(n: int):
     output.update({'total_seconds': int(dt.now().timestamp() - start_time)})
 
     return output
+
+
+if __name__ == '__main__':
+    for i in range(20, 301, 20):
+        out = run(i)
+        print('n:', i, 'B_seconds:', out.get('B_seconds'), 'lll_seconds:', out.get('lll_seconds'))
+
+#
+# G = Matrix([
+#     [-18, 56, -90, 25, 4, -7, 12, -6, -11],
+#     [-39, 70, -6, -67, -39, 29, 12, -6, -126],
+#     [-101, -8, 9, 4, -59, 25, -9, 6, 11],
+#     [-55, 55, 3, -85, 2, -21, 37, -5, -13],
+#     [69, 28, 42, 3, -39, 28, -18, -13, -20],
+#     [-2, -33, -9, -37, -10, -10, 67, 20, -17],
+#     [-16, -32, 32, -9, 24, 10, 11, -40, 80],
+#     [-48, -7, 12, 74, 4, -33, 0, -56, -26]
+# ])

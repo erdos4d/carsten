@@ -1,7 +1,7 @@
 git+https://github.com/sympy/sympy.git@master
-scipy
+numpy
 wheel
-maturin
 SQLAlchemy
 psycopg2-binary
 python-dotenv
+python-flint

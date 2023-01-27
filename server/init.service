@@ -4,7 +4,7 @@ Description=Job to initialize node on boot
 [Service]
 Type=simple
 Environment=HOME=/root
-ExecStart=/bin/bash /server/init.sh
+ExecStart=/bin/bash /carsten/server/init.sh
 Restart=no
 
 [Install]

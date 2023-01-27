@@ -104,7 +104,7 @@ def run(n: int):
     output.update({'G': to_blob(G_list)})
     output.update({'lll_seconds': int(dt.now().timestamp() - time)})
 
-    Z = L.copy()
+    Z = [int(l) for l in L]
     Z.append(-1)
 
     basis_check = all([np.sum([G[u, j] * Z[j] for j in range(G.shape[1])]) == 0 for u in range(G.shape[0])])
@@ -123,19 +123,15 @@ def run(n: int):
     psi = 1 / max(T)
     output.update({'psi': to_string(psi)})
 
-    H = [int(l) for l in L]
-    H.append(-1)
-
     D = [
         math.prod([
             max(abs(max(G[j, :])), abs(min(G[j, :]))) for j in range(G.shape[0])
         ]),
-        math.floor(decimal.Decimal(sum([pow(h, 2) for h in H])).sqrt())
+        math.floor(decimal.Decimal(sum([pow(z, 2) for z in Z])).sqrt())
     ]
     output.update({'D': to_string(D)})
 
     t1 = math.log(int(D[0])) / math.log(int(D[1]))
-
     output.update({'t1': to_string(t1)})
 
     t2 = N * (1 - psi) / (1 - pow(psi, N + 1))

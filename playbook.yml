@@ -76,6 +76,15 @@
       pip:
         requirements: /carsten/requirements.txt
 
+    - name: Move init script
+      copy:
+        src: /carsten/server/init.sh
+        dest: /init.sh
+        remote_src: yes
+        owner: root
+        group: root
+        mode: '0777'
+
     - name: Move systemd service file
       copy:
         src: /carsten/server/init.service

@@ -1,7 +1,8 @@
 from os import getenv
+from traceback import print_exc
 
 from dotenv import load_dotenv
-from sqlalchemy import Table, Column, MetaData, BigInteger, Identity, String, Boolean, text
+from sqlalchemy import Table, Column, MetaData, BigInteger, Identity, String, Boolean, text, BLOB
 from sqlalchemy.engine import create_engine
 
 load_dotenv()
@@ -25,20 +26,19 @@ results = Table(
     Column('Q', String),
     Column('Tau', String),
     Column('m', String),
-    Column('W0', String),
-    Column('W1', String),
+    Column('W0', BLOB),
+    Column('W1', BLOB),
     Column('N', String),
-    Column('B', String),
-    Column('C', String),
-    Column('E', String),
+    Column('B', BLOB),
+    Column('C', BLOB),
+    Column('E', BLOB),
     Column('V', String),
-    Column('L', String),
-    Column('F', String),
-    Column('G', String),
+    Column('L', BLOB),
+    Column('G', BLOB),
     Column('basis_check', Boolean),
     Column('rank_check', Boolean),
-    Column('S', String),
-    Column('T', String),
+    Column('S', BLOB),
+    Column('T', BLOB),
     Column('psi', String),
     Column('D', String),
     Column('t1', String),
@@ -68,7 +68,6 @@ insert_data_query = text('''UPDATE results SET
 "E" = :E,
 "V" = :V,
 "L" = :L,
-"F" = :F,
 "G" = :G,
 "basis_check" = :basis_check,
 "rank_check" = :rank_check,
@@ -82,7 +81,7 @@ insert_data_query = text('''UPDATE results SET
 "B_seconds" = :B_seconds,
 "lll_seconds" = :lll_seconds,
 "total_seconds" = :total_seconds
-WHERE n = :n;
+WHERE n = :n RETURNING n;
 ''')
 
 
@@ -90,13 +89,14 @@ def get_n() -> int:
     try:
         with engine.begin() as connection:
             return next(connection.execute(get_next_n_query))[0]
-    except Exception as e:
-        print(e)
+    except:
+        print_exc()
 
 
-def insert_output(output: dict) -> None:
+def insert_output(output: dict) -> bool:
     try:
         with engine.begin() as connection:
-            connection.execute(insert_data_query, **output)
-    except Exception as e:
-        print(e)
+            return int(output.get('n')) == int(next(connection.execute(insert_data_query, **output))[0])
+    except:
+        print_exc()
+        return False

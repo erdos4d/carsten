@@ -49,7 +49,7 @@
     - name: Download arb
       git:
         repo: https://github.com/fredrik-johansson/arb.git
-        dest: /
+        dest: /arb
 
     - name: Install arb
       shell: |

@@ -112,7 +112,7 @@ resource "aws_db_subnet_group" "carsten_db_subnet" {
 }
 
 resource "aws_db_instance" "carsten_database" {
-  allocated_storage      = 20
+  allocated_storage      = 100
   db_name                = "carsten"
   engine                 = "postgres"
   engine_version         = "14.5"

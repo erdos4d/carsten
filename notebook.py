@@ -1,9 +1,20 @@
-import math
-from datetime import datetime as dt
 import decimal
+import math
+import zlib
+from datetime import datetime as dt
+
 import numpy as np
 from flint import fmpz_mat
-from sympy import *
+from sympy import Pow, floor, primepi, prime, symbols, integrate, Rational, ceiling, product, factorial, binomial, \
+    Matrix, log
+
+
+def to_blob(x):
+    return zlib.compress(str.encode(str(x).replace(' ', '')), level=9)
+
+
+def to_string(x):
+    return str(x).replace(' ', '')
 
 
 def run(n: int):
@@ -12,31 +23,31 @@ def run(n: int):
     output.update({'n': n})
 
     beta = (1 - Pow(10, -4)) / 100
-    output.update({'beta': str(beta)})
+    output.update({'beta': to_string(beta)})
 
     q = 45 / 32
-    output.update({'q': str(q)})
+    output.update({'q': to_string(q)})
 
     Q = floor(pow(n, beta)).doit()
-    output.update({'Q': str(Q)})
+    output.update({'Q': to_string(Q)})
 
     Tau = (1 + Q) / 3
-    output.update({'Tau': str(Tau)})
+    output.update({'Tau': to_string(Tau)})
 
     m = [primepi(n / Tau).doit(), primepi(3 * n).doit()]
-    output.update({'m': str(m)})
+    output.update({'m': to_string(m)})
 
     W0 = set(k * prime(j) for j in range(m[0] + 1, m[1] + 1) for k in range(1, Q + 1))
-    output.update({'W0': str(W0)})
+    output.update({'W0': to_blob(W0)})
 
     W1 = set(j for j in range(ceiling(q * n).doit(), 3 * n + 1)).difference(W0)
-    output.update({'W1': str(W1)})
+    output.update({'W1': to_blob(W1)})
 
     A = list(W1)
-    output.update({'A': str(A)})
+    output.update({'A': to_blob(A)})
 
     N = len(A)
-    output.update({'N': str(N)})
+    output.update({'N': to_string(N)})
 
     u, h = symbols('n h')
 
@@ -61,7 +72,7 @@ def run(n: int):
 
     time = dt.now().timestamp()
     B = [t(z + 2) for z in range(n + 1)]
-    output.update({'B': str(B)})
+    output.update({'B': to_blob(B)})
     output.update({'B_seconds': int(dt.now().timestamp() - time)})
 
     C = [
@@ -69,29 +80,28 @@ def run(n: int):
         sum([Rational(1, l) for l in range(1, A[b])])
         for b in range(N)
     ]
-    output.update({'C': str(C)})
+    output.update({'C': to_blob(C)})
 
     E = [c.q for c in C]
-    output.update({'E': str(E)})
+    output.update({'E': to_blob(E)})
 
     V = np.lcm.reduce(E)
-    output.update({'V': str(V)})
+    output.update({'V': to_string(V)})
 
     L = [-V]
     L.extend([V * c for c in C])
-    output.update({'L': str(L)})
+    output.update({'L': to_blob(L)})
 
     F = [
         [1 if i == j else 0 if i < N + 1 else int(L[j]) for i in range(N + 2)] for j in range(N + 1)
     ]
-    output.update({'F': str(F)})
 
     time = dt.now().timestamp()
     fM = fmpz_mat(F)
     lll = fM.lll().tolist()
     G_list = [[int(lll[i][j]) for j in range(N + 2)] for i in range(N + 1)]
     G = Matrix(G_list)
-    output.update({'G': str(G_list)})
+    output.update({'G': to_blob(G_list)})
     output.update({'lll_seconds': int(dt.now().timestamp() - time)})
 
     Z = L.copy()
@@ -105,13 +115,13 @@ def run(n: int):
 
     S = [max([abs(G[j, i]) for i in range(G.shape[1])]) for j in range(G.shape[0])]
     S.sort()
-    output.update({'S': str(S)})
+    output.update({'S': to_blob(S)})
 
     T = [(log(S[k + 1]) / log(S[k])).doit().evalf() for k in range(N)]
-    output.update({'T': str(T)})
+    output.update({'T': to_blob(T)})
 
     psi = 1 / max(T)
-    output.update({'psi': str(psi)})
+    output.update({'psi': to_string(psi)})
 
     H = [int(l) for l in L]
     H.append(-1)
@@ -122,27 +132,22 @@ def run(n: int):
         ]),
         math.floor(decimal.Decimal(sum([pow(h, 2) for h in H])).sqrt())
     ]
-    output.update({'D': str(D)})
+    output.update({'D': to_string(D)})
 
     t1 = math.log(int(D[0])) / math.log(int(D[1]))
 
-    output.update({'t1': str(t1)})
+    output.update({'t1': to_string(t1)})
 
     t2 = N * (1 - psi) / (1 - pow(psi, N + 1))
-    output.update({'t2': str(t2)})
+    output.update({'t2': to_string(t2)})
 
     beta3 = max(t1, t2)
-    output.update({'beta3': str(beta3)})
+    output.update({'beta3': to_string(beta3)})
 
     output.update({'total_seconds': int(dt.now().timestamp() - start_time)})
 
     return output
 
-
-if __name__ == '__main__':
-    for i in range(20, 301, 20):
-        out = run(i)
-        print('n:', i, 'B_seconds:', out.get('B_seconds'), 'lll_seconds:', out.get('lll_seconds'))
 
 #
 # G = Matrix([

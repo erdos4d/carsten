@@ -2,7 +2,7 @@ from os import getenv
 from traceback import print_exc
 
 from dotenv import load_dotenv
-from sqlalchemy import Table, Column, MetaData, BigInteger, Identity, String, Boolean, text, BLOB
+from sqlalchemy import Table, Column, MetaData, BigInteger, Identity, String, Boolean, text, LargeBinary
 from sqlalchemy.engine import create_engine
 
 load_dotenv()
@@ -26,19 +26,19 @@ results = Table(
     Column('Q', String),
     Column('Tau', String),
     Column('m', String),
-    Column('W0', BLOB),
-    Column('W1', BLOB),
+    Column('W0', LargeBinary),
+    Column('W1', LargeBinary),
     Column('N', String),
-    Column('B', BLOB),
-    Column('C', BLOB),
-    Column('E', BLOB),
+    Column('B', LargeBinary),
+    Column('C', LargeBinary),
+    Column('E', LargeBinary),
     Column('V', String),
-    Column('L', BLOB),
-    Column('G', BLOB),
+    Column('L', LargeBinary),
+    Column('G', LargeBinary),
     Column('basis_check', Boolean),
     Column('rank_check', Boolean),
-    Column('S', BLOB),
-    Column('T', BLOB),
+    Column('S', LargeBinary),
+    Column('T', LargeBinary),
     Column('psi', String),
     Column('D', String),
     Column('t1', String),
@@ -81,7 +81,7 @@ insert_data_query = text('''UPDATE results SET
 "B_seconds" = :B_seconds,
 "lll_seconds" = :lll_seconds,
 "total_seconds" = :total_seconds
-WHERE n = :n RETURNING n;
+WHERE "n" = :n RETURNING n;
 ''')
 
 
@@ -96,7 +96,7 @@ def get_n() -> int:
 def insert_output(output: dict) -> bool:
     try:
         with engine.begin() as connection:
-            return int(output.get('n')) == int(next(connection.execute(insert_data_query, **output))[0])
+            return int(output.get('n')) == int(next(connection.execute(insert_data_query, output))[0])
     except:
         print_exc()
         return False

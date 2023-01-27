@@ -36,7 +36,7 @@ resource "aws_subnet" "public_subnet" {
   cidr_block              = "10.0.0.0/16"
   vpc_id                  = aws_vpc.carsten_vpc.id
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-1c"
+  availability_zone       = "us-east-1b"
 }
 
 resource "aws_internet_gateway" "internet_gateway" {
@@ -116,20 +116,21 @@ resource "aws_db_instance" "carsten_database" {
   db_name                = "carsten"
   engine                 = "postgres"
   engine_version         = "14.5"
-  instance_class         = "db.t3.micro"
+  instance_class         = "db.t3.small"
   storage_type           = "gp2"
   publicly_accessible    = true
   deletion_protection    = true
   db_subnet_group_name   = "carsten_db_subnet"
   username               = "postgres"
   password               = "quwefhq83fmhxi8mh3zim2hrfix3yymrfmqymrfdmkqzuhecifxqhyfmixqhyfi8"
-  skip_final_snapshot    = true
+  skip_final_snapshot    = false
   vpc_security_group_ids = [
     aws_security_group.carsten_security_group.id
   ]
 }
 
-resource "aws_instance" "carsten_node" {
+resource "aws_spot_instance_request" "carsten_node" {
+  spot_price                  = "0.036"
   depends_on                  = [aws_db_instance.carsten_database]
   ami                         = data.aws_ami.carsten_node_ami.id
   instance_type               = "c6i.large"
@@ -154,7 +155,7 @@ EOF
 }
 
 resource "aws_ec2_tag" "carsten_node_tag" {
-  resource_id = aws_instance.carsten_node.id
+  resource_id = aws_spot_instance_request.carsten_node.id
   key         = "Name"
   value       = "carsten_node"
 }
@@ -164,5 +165,5 @@ output "db_endpoint" {
 }
 
 output "node_ip" {
-  value = aws_db_instance.carsten_database.endpoint
+  value = aws_spot_instance_request.carsten_node.public_ip
 }

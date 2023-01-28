@@ -1,4 +1,7 @@
 #!/bin/bash
+until [ -f /.env ]; do
+  sleep 5
+done
 set -euxo pipefail
 set -o allexport
 . /.env

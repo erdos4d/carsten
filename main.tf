@@ -156,7 +156,7 @@ resource "aws_spot_instance_request" "carsten_node" {
   }
   user_data = <<EOF
 #!/bin/bash
-touch .env
+touch /.env
 echo "DB_HOST=${aws_db_instance.carsten_database.address}" >> /.env
 echo "DB_PORT=${aws_db_instance.carsten_database.port}" >> /.env
 echo "DB_NAME=carsten" >> /.env

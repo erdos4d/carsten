@@ -141,10 +141,10 @@ resource "aws_db_instance" "carsten_database" {
 }
 
 resource "aws_spot_instance_request" "carsten_node" {
-  spot_price                  = "0.036"
+  spot_price                  = "0.16"
   depends_on                  = [aws_db_instance.carsten_database]
   ami                         = data.aws_ami.carsten_node_ami.id
-  instance_type               = "c6i.large"
+  instance_type               = "c6i.2xlarge"
   key_name                    = "pmp-server"
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.public_subnet.id
@@ -163,12 +163,6 @@ echo "DB_NAME=carsten" >> /.env
 echo "DB_USER=postgres" >> /.env
 echo "DB_PASS=quwefhq83fmhxi8mh3zim2hrfix3yymrfmqymrfdmkqzuhecifxqhyfmixqhyfi8" >> /.env
 EOF
-}
-
-resource "aws_ec2_tag" "carsten_node_tag" {
-  resource_id = aws_spot_instance_request.carsten_node.spot_instance_id
-  key         = "Name"
-  value       = "carsten_node"
 }
 
 output "db_endpoint" {

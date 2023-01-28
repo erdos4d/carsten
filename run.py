@@ -24,7 +24,7 @@ def process_error(error: BaseException):
     print_exc()
 
 
-cpus = cpu_count()
+cpus = cpu_count() - 1
 with Pool(processes=cpus) as pool:
     while True:
         write_output()

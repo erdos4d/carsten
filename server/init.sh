@@ -2,6 +2,7 @@
 until [ -f /.env ]; do
   sleep 5
 done
+sleep 10
 set -euxo pipefail
 set -o allexport
 . /.env

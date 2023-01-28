@@ -141,10 +141,10 @@ resource "aws_db_instance" "carsten_database" {
 }
 
 resource "aws_spot_instance_request" "carsten_node" {
-  spot_price                  = "0.16"
+  spot_price                  = "2.25"
   depends_on                  = [aws_db_instance.carsten_database]
   ami                         = data.aws_ami.carsten_node_ami.id
-  instance_type               = "c6i.2xlarge"
+  instance_type               = "c6i.32xlarge"
   key_name                    = "pmp-server"
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.public_subnet.id

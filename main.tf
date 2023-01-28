@@ -33,10 +33,17 @@ resource "aws_vpc" "carsten_vpc" {
 }
 
 resource "aws_subnet" "public_subnet" {
-  cidr_block              = "10.0.0.0/16"
+  cidr_block              = "10.0.0.0/24"
   vpc_id                  = aws_vpc.carsten_vpc.id
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1b"
+}
+
+resource "aws_subnet" "db_subnet" {
+  cidr_block              = "10.0.2.0/24"
+  vpc_id                  = aws_vpc.carsten_vpc.id
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1a"
 }
 
 resource "aws_internet_gateway" "internet_gateway" {
@@ -69,7 +76,7 @@ resource "aws_security_group" "carsten_security_group" {
   }
   vpc_id = aws_vpc.carsten_vpc.id
   ingress {
-    description = "Allow ssh from admin cidr blocks"
+    description = "Allow ssh from admin"
     from_port   = 22
     protocol    = "tcp"
     to_port     = 22
@@ -79,13 +86,14 @@ resource "aws_security_group" "carsten_security_group" {
     ]
   }
   ingress {
-    description = "Allow postgres from admin cidr blocks"
+    description = "Allow postgres from admin and subnets"
     from_port   = 5432
     protocol    = "tcp"
     to_port     = 5432
     cidr_blocks = [
-      "181.199.46.132/32",
-      "157.100.174.220/32"
+      "181.199.54.3/32",
+      "10.0.0.0/24",
+      "10.0.2.0/24"
     ]
   }
   egress {
@@ -108,7 +116,10 @@ resource "aws_security_group" "carsten_security_group" {
 
 resource "aws_db_subnet_group" "carsten_db_subnet" {
   name       = "carsten_db_subnet"
-  subnet_ids = [aws_subnet.public_subnet.id]
+  subnet_ids = [
+    aws_subnet.public_subnet.id,
+    aws_subnet.db_subnet.id
+  ]
 }
 
 resource "aws_db_instance" "carsten_database" {
@@ -134,7 +145,7 @@ resource "aws_spot_instance_request" "carsten_node" {
   depends_on                  = [aws_db_instance.carsten_database]
   ami                         = data.aws_ami.carsten_node_ami.id
   instance_type               = "c6i.large"
-  key_name                    = "main"
+  key_name                    = "pmp-server"
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.public_subnet.id
   security_groups             = [

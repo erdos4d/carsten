@@ -166,7 +166,7 @@ EOF
 }
 
 resource "aws_ec2_tag" "carsten_node_tag" {
-  resource_id = aws_spot_instance_request.carsten_node.id
+  resource_id = aws_spot_instance_request.carsten_node.spot_instance_id
   key         = "Name"
   value       = "carsten_node"
 }
